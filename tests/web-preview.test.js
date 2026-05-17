@@ -35,6 +35,6 @@ test('browser board supports direct click actions without choosing a build mode 
   assert.match(app, /buildRoad\(state, player\.id, edgeId/);
   assert.match(app, /moveRobber\(state, hexId/);
   assert.doesNotMatch(app, /if \(boardMode === 'settlement'\) mutate/);
-  assert.match(app, /Click empty corners to build settlements; click your settlements to upgrade cities; click edges to build roads; click tiles to move the robber\./);
+  assert.match(app, /Click empty corners to build settlements; click your settlements to upgrade cities after setup; click edges to build roads; click tiles to move the robber\. Free setup allows at most two settlements per player\./);
   assert.match(css, /\.interaction-hint/);
 });

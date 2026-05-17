@@ -140,7 +140,7 @@ function renderGame() {
         <div class="card board-card">
           <div class="board-toolbar">
             <strong>Direct board play</strong>
-            <span class="interaction-hint">Click empty corners to build settlements; click your settlements to upgrade cities; click edges to build roads; click tiles to move the robber.</span>
+            <span class="interaction-hint">Click empty corners to build settlements; click your settlements to upgrade cities after setup; click edges to build roads; click tiles to move the robber. Free setup allows at most two settlements per player.</span>
             <label class="free-toggle"><input type="checkbox" data-action="toggle-free" ${freeBuild ? 'checked' : ''}> free setup builds</label>
           </div>
           ${renderBoardSvg()}

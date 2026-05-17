@@ -21,6 +21,14 @@ function firstVertexForHex(board, hexId) {
   return board.vertices.find((vertex) => vertex.adjacentHexIds.includes(hexId));
 }
 
+function findNonAdjacentEmptyVertex(board, usedVertexIds) {
+  return board.vertices.find((vertex) => {
+    if (usedVertexIds.includes(vertex.id)) return false;
+    const adjacent = getAdjacentVertexIds(board, vertex.id);
+    return usedVertexIds.every((usedId) => !adjacent.includes(usedId));
+  });
+}
+
 test('createBoard generates a playable 19-hex board topology', () => {
   const board = createBoard();
 
@@ -52,6 +60,36 @@ test('buildSettlement obeys the distance rule even during setup', () => {
   assert.throws(
     () => buildSettlement(game, 'p2', adjacent, { free: true, setup: true }),
     /distance rule/
+  );
+});
+
+test('opening setup limits each player to two settlements', () => {
+  let game = createPlayableGame(['Ada', 'Ben', 'Chen']);
+  const first = game.board.vertices[0];
+  const second = findNonAdjacentEmptyVertex(game.board, [first.id]);
+  assert.ok(second, 'expected a legal second setup settlement vertex');
+
+  game = buildSettlement(game, 'p1', first.id, { free: true, setup: true });
+  game = buildSettlement(game, 'p1', second.id, { free: true, setup: true });
+
+  const third = findNonAdjacentEmptyVertex(game.board, [first.id, second.id]);
+  assert.ok(third, 'expected a non-adjacent third vertex to prove the setup limit');
+  assert.throws(
+    () => buildSettlement(game, 'p1', third.id, { free: true, setup: true }),
+    /opening setup.*two settlements/i
+  );
+  assert.equal(game.players[0].settlements, 2);
+});
+
+test('opening setup does not allow city upgrades that bypass the two-settlement placement limit', () => {
+  let game = createPlayableGame(['Ada', 'Ben', 'Chen']);
+  const vertex = game.board.vertices[0];
+
+  game = buildSettlement(game, 'p1', vertex.id, { free: true, setup: true });
+
+  assert.throws(
+    () => upgradeCityAtVertex(game, 'p1', vertex.id, { free: true, setup: true }),
+    /cities.*opening setup/i
   );
 });
 

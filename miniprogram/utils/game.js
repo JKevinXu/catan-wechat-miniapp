@@ -40,6 +40,7 @@ function createPlayer(name, index, startingPieces = { roads: 2, settlements: 2 }
     resources: createEmptyResources(),
     roads: startingPieces.roads,
     settlements: startingPieces.settlements,
+    setupSettlementsPlaced: 0,
     cities: 0,
     developmentCards: 0,
     victoryPointCards: 0,
@@ -198,7 +199,7 @@ function createPlayableGame(input = 3) {
     lastRoll: null,
     winnerId: null,
     selectedMode: 'settlement',
-    log: ['New playable board created. Place opening settlements and roads, or start rolling.'],
+    log: ['New playable board created. Opening setup allows each player to place at most two settlements and matching roads, then turn off free setup to continue building.'],
     board: createBoard(),
     players: names.map((name, index) => createPlayer(name, index, { roads: 0, settlements: 0 }))
   };
@@ -308,6 +309,10 @@ function buildSettlement(game, playerId, vertexId, options = {}) {
     .some((item) => item.building);
   if (adjacentBuilding) throw new Error('Settlement violates the distance rule');
 
+  if (options.setup && Number(player.setupSettlementsPlaced || 0) >= 2) {
+    throw new Error('Opening setup allows at most two settlements per player');
+  }
+
   if (!options.setup && !playerHasNetworkAtVertex(next.board, playerId, vertexId)) {
     throw new Error('Settlement must connect to one of your roads');
   }
@@ -320,6 +325,9 @@ function buildSettlement(game, playerId, vertexId, options = {}) {
 
   vertex.building = { playerId, type: 'settlement' };
   player.settlements += 1;
+  if (options.setup) {
+    player.setupSettlementsPlaced = Number(player.setupSettlementsPlaced || 0) + 1;
+  }
   addLog(next, `${player.name} built a settlement.`);
   return updateWinner(next);
 }
@@ -351,6 +359,9 @@ function upgradeCityAtVertex(game, playerId, vertexId, options = {}) {
   const playerIndex = findPlayerIndex(next, playerId);
   const player = next.players[playerIndex];
   const vertex = findBoardItem(next.board.vertices, vertexId, 'vertex');
+  if (options.setup) {
+    throw new Error('Cities cannot be built during opening setup');
+  }
   if (!vertex.building || vertex.building.playerId !== playerId || vertex.building.type !== 'settlement') {
     throw new Error('Choose one of your settlements to upgrade');
   }
