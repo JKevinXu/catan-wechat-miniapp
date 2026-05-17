@@ -15,7 +15,7 @@
 
   <view class="card board-card">
     <view class="section-title">Playable Board</view>
-    <view class="subtitle">Choose an action, then tap a tile / point / edge below. Browser preview has the full SVG board; Mini Program shows a compact tap list.</view>
+    <view class="subtitle">Tap the board directly: empty points build settlements, owned settlements upgrade to cities, edges build roads, and tiles move the robber. Use free setup while learning.</view>
     <view class="piece-legend">
       <view><text class="piece-icon settlement-icon">🏠</text> Settlement</view>
       <view><text class="piece-icon road-icon">🛣️</text> Road</view>
@@ -24,10 +24,6 @@
     </view>
 
     <view class="mode-row">
-      <button size="mini" class="{{mode === 'settlement' ? 'active-mode' : ''}}" data-mode="settlement" bindtap="setMode">🏠 Settlement</button>
-      <button size="mini" class="{{mode === 'road' ? 'active-mode' : ''}}" data-mode="road" bindtap="setMode">🛣️ Road</button>
-      <button size="mini" class="{{mode === 'city' ? 'active-mode' : ''}}" data-mode="city" bindtap="setMode">🏙️ City</button>
-      <button size="mini" class="{{mode === 'robber' ? 'active-mode' : ''}}" data-mode="robber" bindtap="setMode">● Robber</button>
       <button size="mini" bindtap="toggleFreeBuild">{{freeBuild ? 'Free setup: on' : 'Free setup: off'}}</button>
     </view>
 

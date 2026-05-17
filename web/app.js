@@ -139,11 +139,8 @@ function renderGame() {
       <section class="play-layout">
         <div class="card board-card">
           <div class="board-toolbar">
-            <strong>Action mode</strong>
-            ${renderModeButton('settlement', 'Build settlement')}
-            ${renderModeButton('road', 'Build road')}
-            ${renderModeButton('city', 'Upgrade city')}
-            ${renderModeButton('robber', 'Move robber')}
+            <strong>Direct board play</strong>
+            <span class="interaction-hint">Click empty corners to build settlements; click your settlements to upgrade cities; click edges to build roads; click tiles to move the robber.</span>
             <label class="free-toggle"><input type="checkbox" data-action="toggle-free" ${freeBuild ? 'checked' : ''}> free setup builds</label>
           </div>
           ${renderBoardSvg()}
@@ -357,16 +354,34 @@ app.addEventListener('click', (event) => {
   }
   if (action === 'roll') mutate((state) => gameApi.rollDice(state));
   if (action === 'end-turn') mutate((state) => gameApi.endTurn(state));
-  if (action === 'board-vertex') {
-    if (boardMode === 'settlement') mutate((state) => gameApi.buildSettlement(state, player.id, target.dataset.vertex, buildOptions));
-    if (boardMode === 'city') mutate((state) => gameApi.upgradeCityAtVertex(state, player.id, target.dataset.vertex, buildOptions));
-  }
-  if (action === 'board-edge' && boardMode === 'road') {
-    mutate((state) => gameApi.buildRoad(state, player.id, target.dataset.edge, buildOptions));
-  }
-  if (action === 'board-hex' && boardMode === 'robber') {
-    mutate((state) => gameApi.moveRobber(state, target.dataset.hex));
-  }
+  if (action === 'board-vertex') handleVertexClick(target.dataset.vertex, player, buildOptions);
+  if (action === 'board-edge') handleEdgeClick(target.dataset.edge, player, buildOptions);
+  if (action === 'board-hex') handleHexClick(target.dataset.hex);
 });
+
+function handleVertexClick(vertexId, player, buildOptions) {
+  const vertex = game.board.vertices.find((item) => item.id === vertexId);
+  if (!vertex) return;
+
+  if (!vertex.building) {
+    mutate((state) => gameApi.buildSettlement(state, player.id, vertexId, buildOptions));
+    return;
+  }
+
+  if (vertex.building.playerId === player.id && vertex.building.type === 'settlement') {
+    mutate((state) => gameApi.upgradeCityAtVertex(state, player.id, vertexId, buildOptions));
+    return;
+  }
+
+  window.alert('Choose an empty corner for a settlement, or your own settlement to upgrade.');
+}
+
+function handleEdgeClick(edgeId, player, buildOptions) {
+  mutate((state) => gameApi.buildRoad(state, player.id, edgeId, buildOptions));
+}
+
+function handleHexClick(hexId) {
+  mutate((state) => gameApi.moveRobber(state, hexId));
+}
 
 render();

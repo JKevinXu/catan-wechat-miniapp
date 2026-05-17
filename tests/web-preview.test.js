@@ -22,3 +22,19 @@ test('browser preview app exposes key table-helper controls', () => {
   assert.match(app, /End turn/);
   assert.match(app, /Rules Reference/);
 });
+
+test('browser board supports direct click actions without choosing a build mode first', () => {
+  const app = fs.readFileSync(path.join(root, 'web', 'app.js'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'web', 'styles.css'), 'utf8');
+
+  assert.match(app, /function handleVertexClick/);
+  assert.match(app, /function handleEdgeClick/);
+  assert.match(app, /function handleHexClick/);
+  assert.match(app, /buildSettlement\(state, player\.id, vertexId/);
+  assert.match(app, /upgradeCityAtVertex\(state, player\.id, vertexId/);
+  assert.match(app, /buildRoad\(state, player\.id, edgeId/);
+  assert.match(app, /moveRobber\(state, hexId/);
+  assert.doesNotMatch(app, /if \(boardMode === 'settlement'\) mutate/);
+  assert.match(app, /Click empty corners to build settlements; click your settlements to upgrade cities; click edges to build roads; click tiles to move the robber\./);
+  assert.match(css, /\.interaction-hint/);
+});

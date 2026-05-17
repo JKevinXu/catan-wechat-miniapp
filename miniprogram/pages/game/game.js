@@ -117,7 +117,6 @@ Page({
   },
 
   tapHex(event) {
-    if (this.data.mode !== 'robber') return;
     try {
       this.setGame(moveRobber(this.data.game, event.currentTarget.dataset.hexId));
     } catch (error) {
@@ -128,11 +127,14 @@ Page({
   tapVertex(event) {
     const playerId = this.data.currentPlayer.id;
     const vertexId = event.currentTarget.dataset.vertexId;
+    const vertex = this.data.game.board.vertices.find((item) => item.id === vertexId);
     try {
-      if (this.data.mode === 'settlement') {
+      if (!vertex || !vertex.building) {
         this.setGame(buildSettlement(this.data.game, playerId, vertexId, this.currentBuildOptions()));
-      } else if (this.data.mode === 'city') {
+      } else if (vertex.building.playerId === playerId && vertex.building.type === 'settlement') {
         this.setGame(upgradeCityAtVertex(this.data.game, playerId, vertexId, this.currentBuildOptions()));
+      } else {
+        wx.showToast({ title: 'Tap an empty point, or your own settlement to upgrade', icon: 'none' });
       }
     } catch (error) {
       wx.showToast({ title: error.message, icon: 'none' });
@@ -140,7 +142,6 @@ Page({
   },
 
   tapEdge(event) {
-    if (this.data.mode !== 'road') return;
     try {
       this.setGame(buildRoad(this.data.game, this.data.currentPlayer.id, event.currentTarget.dataset.edgeId, this.currentBuildOptions()));
     } catch (error) {

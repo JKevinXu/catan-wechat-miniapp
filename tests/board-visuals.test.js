@@ -45,14 +45,24 @@ test('browser tile icon layout keeps resource, number, label, and robber separat
   assert.match(css, /\.hex-resource \{[\s\S]*font-size: 7px;/);
 });
 
-test('mini program board uses visual icons for pieces and resources', () => {
+test('mini program game page supports direct board taps without preselecting a mode', () => {
+  const js = fs.readFileSync(path.join(root, 'miniprogram', 'pages', 'game', 'game.js'), 'utf8');
   const wxml = fs.readFileSync(path.join(root, 'miniprogram', 'pages', 'game', 'game.wxml'), 'utf8');
   const wxss = fs.readFileSync(path.join(root, 'miniprogram', 'pages', 'game', 'game.wxss'), 'utf8');
 
+  assert.match(js, /tapVertex\(event\)/);
+  assert.match(js, /vertex\.building/);
+  assert.match(js, /buildSettlement\(this\.data\.game, playerId, vertexId/);
+  assert.match(js, /upgradeCityAtVertex\(this\.data\.game, playerId, vertexId/);
+  assert.match(js, /tapEdge\(event\)/);
+  assert.match(js, /buildRoad\(this\.data\.game, this\.data\.currentPlayer\.id/);
+  assert.match(js, /tapHex\(event\)/);
+  assert.match(js, /moveRobber\(this\.data\.game, event\.currentTarget\.dataset\.hexId/);
+  assert.doesNotMatch(js, /if \(this\.data\.mode !== 'road'\) return/);
+  assert.doesNotMatch(js, /if \(this\.data\.mode !== 'robber'\) return/);
+  assert.match(wxml, /Tap the board directly/);
   assert.match(wxml, /piece-legend/);
-  assert.match(wxml, /🏠/);
-  assert.match(wxml, /🛣️/);
-  assert.match(wxml, /🏙️/);
   assert.match(wxss, /\.piece-legend/);
   assert.match(wxss, /\.resource-badge/);
 });
+

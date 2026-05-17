@@ -190,6 +190,17 @@ button:disabled {
   gap: 7px;
 }
 
+.interaction-hint {
+  background: #fff;
+  border: 1px solid rgba(34,34,34,0.08);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.4;
+  padding: 9px 13px;
+}
+
 .free-toggle {
   align-items: center;
   background: #fff4d6;
