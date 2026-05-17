@@ -139,15 +139,23 @@ test('produceResourcesForRoll gives resources to settlements and cities on match
   assert.equal(game.players[0].resources[hex.resource], 3);
 });
 
-test('moveRobber blocks production on the robber hex', () => {
+test('moveRobber is only allowed during the robber phase by default', () => {
   let game = createPlayableGame(['Ada', 'Ben', 'Chen']);
   const hex = firstNumberedHex(game.board);
   const vertex = firstVertexForHex(game.board, hex.id);
 
   game = buildSettlement(game, 'p1', vertex.id, { free: true, setup: true });
+
+  assert.throws(
+    () => moveRobber(game, hex.id),
+    /Roll a 7 before moving the robber/
+  );
+
+  game.phase = 'ROBBER';
   game = moveRobber(game, hex.id);
   game = produceResourcesForRoll(game, hex.number);
 
+  assert.equal(game.phase, 'TRADE_BUILD');
   assert.equal(game.players[0].resources[hex.resource], 0);
   assert.equal(game.board.hexes.find((item) => item.id === hex.id).hasRobber, true);
 });

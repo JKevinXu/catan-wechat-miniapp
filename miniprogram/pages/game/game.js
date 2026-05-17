@@ -71,6 +71,12 @@ function withViewModel(game) {
       score: calculateVictoryPoints(player)
     })),
     isRollPhase: game.phase === 'ROLL',
+    isRobberPhase: game.phase === 'ROBBER',
+    phaseHint: game.phase === 'ROLL'
+      ? 'Roll dice before normal building or ending your turn.'
+      : game.phase === 'ROBBER'
+        ? 'Move the robber before building or ending your turn.'
+        : 'Build, trade, or end your turn.',
     isGameOver: game.phase === 'GAME_OVER',
     winner: game.winnerId ? game.players.find((player) => player.id === game.winnerId) : null
   };
@@ -113,7 +119,11 @@ Page({
   },
 
   endTurn() {
-    this.setGame(endTurn(this.data.game));
+    try {
+      this.setGame(endTurn(this.data.game, { setup: this.data.freeBuild }));
+    } catch (error) {
+      wx.showToast({ title: error.message, icon: 'none' });
+    }
   },
 
   tapHex(event) {

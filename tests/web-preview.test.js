@@ -35,11 +35,11 @@ test('browser board supports direct click actions without choosing a build mode 
   assert.match(app, /buildRoad\(state, player\.id, edgeId/);
   assert.match(app, /moveRobber\(state, hexId/);
   assert.doesNotMatch(app, /if \(boardMode === 'settlement'\) mutate/);
-  assert.match(app, /Click empty corners to build settlements; click your settlements to upgrade cities after setup; click edges to build roads; click tiles to move the robber\. Free setup allows at most two settlements per player\./);
+  assert.match(app, /Click empty corners to build settlements; click your settlements to upgrade cities after setup; click edges to build roads; after a 7, click a tile to move the robber\. Free setup allows at most two settlements per player\./);
   assert.match(css, /\.interaction-hint/);
 });
 
-test('browser board shows invalid-action feedback and resets setup on restart', () => {
+test('browser board gates robber movement and ending turn by phase', () => {
   const app = fs.readFileSync(path.join(root, 'web', 'app.js'), 'utf8');
 
   assert.match(app, /let feedbackMessage = ''/);
@@ -47,4 +47,8 @@ test('browser board shows invalid-action feedback and resets setup on restart', 
   assert.match(app, /<div class="feedback-message"/);
   assert.match(app, /freeBuild = true;\n  feedbackMessage = '';/);
   assert.match(app, /Roll dice before building/);
+  assert.match(app, /Move the robber before building or ending your turn/);
+  assert.match(app, /Roll before ending your turn/);
+  assert.match(app, /gameApi\.endTurn\(state, \{ setup: freeBuild \}\)/);
+  assert.match(app, /gameApi\.moveRobber\(state, hexId\)/);
 });

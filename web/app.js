@@ -88,6 +88,13 @@ function discardCandidateNames() {
     .join(', ');
 }
 
+function phaseHint() {
+  if (game.phase === 'ROLL') return freeBuild ? 'Place opening pieces or roll dice to start a normal turn.' : 'Roll before building or ending your turn.';
+  if (game.phase === 'ROBBER') return 'Move the robber before building or ending your turn.';
+  if (game.phase === 'TRADE_BUILD') return 'Build roads, settlements, cities, or end your turn.';
+  return '';
+}
+
 function navHtml() {
   return `
     <div class="nav-tabs">
@@ -128,6 +135,7 @@ function renderGame() {
         <div>
           <h1 class="title">${escapeHtml(player.name)}'s turn</h1>
           <p class="subtitle">Phase: ${escapeHtml(game.phase)} · Score: ${gameApi.calculateVictoryPoints(player)} VP</p>
+          <p class="phase-hint">${escapeHtml(phaseHint())}</p>
           ${game.lastRoll ? `
             <div class="roll-box">
               <strong>Roll: ${game.lastRoll.dieA} + ${game.lastRoll.dieB} = ${game.lastRoll.total}</strong>
@@ -150,7 +158,7 @@ function renderGame() {
         <div class="card board-card">
           <div class="board-toolbar">
             <strong>Direct board play</strong>
-            <span class="interaction-hint">Click empty corners to build settlements; click your settlements to upgrade cities after setup; click edges to build roads; click tiles to move the robber. Free setup allows at most two settlements per player.</span>
+            <span class="interaction-hint">Click empty corners to build settlements; click your settlements to upgrade cities after setup; click edges to build roads; after a 7, click a tile to move the robber. Free setup allows at most two settlements per player.</span>
             <label class="free-toggle"><input type="checkbox" data-action="toggle-free" ${freeBuild ? 'checked' : ''}> free setup builds</label>
           </div>
           ${renderBoardSvg()}
@@ -363,7 +371,17 @@ app.addEventListener('click', (event) => {
     render();
   }
   if (action === 'roll') mutate((state) => gameApi.rollDice(state));
-  if (action === 'end-turn') mutate((state) => gameApi.endTurn(state));
+  if (action === 'end-turn') {
+    if (!freeBuild && game.phase === 'ROLL') {
+      showFeedback('Roll before ending your turn.');
+      return;
+    }
+    if (game.phase === 'ROBBER') {
+      showFeedback('Move the robber before ending your turn.');
+      return;
+    }
+    mutate((state) => gameApi.endTurn(state, { setup: freeBuild }));
+  }
   if (action === 'board-vertex') handleVertexClick(target.dataset.vertex, player, buildOptions);
   if (action === 'board-edge') handleEdgeClick(target.dataset.edge, player, buildOptions);
   if (action === 'board-hex') handleHexClick(target.dataset.hex);
@@ -399,6 +417,10 @@ function handleEdgeClick(edgeId, player, buildOptions) {
 }
 
 function handleHexClick(hexId) {
+  if (freeBuild && game.phase === 'ROLL') {
+    showFeedback('Free setup only places settlements and roads; roll a 7 before moving the robber.');
+    return;
+  }
   mutate((state) => gameApi.moveRobber(state, hexId));
 }
 

@@ -1,6 +1,7 @@
 const RESOURCE_TYPES = ['brick', 'lumber', 'wool', 'grain', 'ore'];
 const PHASES = {
   ROLL: 'ROLL',
+  ROBBER: 'ROBBER',
   TRADE_BUILD: 'TRADE_BUILD',
   GAME_OVER: 'GAME_OVER'
 };
@@ -388,11 +389,17 @@ function upgradeCityAtVertex(game, playerId, vertexId, options = {}) {
   return updateWinner(next);
 }
 
-function moveRobber(game, hexId) {
+function moveRobber(game, hexId, options = {}) {
+  if (!options.free && game.phase !== PHASES.ROBBER) {
+    throw new Error('Roll a 7 before moving the robber');
+  }
   const next = cloneGame(game);
   const target = findBoardItem(next.board.hexes, hexId, 'hex');
   next.board.hexes.forEach((hex) => { hex.hasRobber = false; });
   target.hasRobber = true;
+  if (!options.free && next.phase === PHASES.ROBBER) {
+    next.phase = PHASES.TRADE_BUILD;
+  }
   addLog(next, `Robber moved to ${target.resource}${target.number ? ` ${target.number}` : ''}.`);
   return next;
 }
@@ -444,7 +451,7 @@ function rollDiceWithValues(game, dieA, dieB) {
     ? next.players.filter((player) => totalResources(player) > 7).map((player) => player.id)
     : [];
 
-  next.phase = PHASES.TRADE_BUILD;
+  next.phase = total === 7 ? PHASES.ROBBER : PHASES.TRADE_BUILD;
   next.lastRoll = {
     dieA,
     dieB,
@@ -475,9 +482,15 @@ function updateWinner(game) {
   return next;
 }
 
-function endTurn(game) {
+function endTurn(game, options = {}) {
   if (game.phase === PHASES.GAME_OVER) {
     return cloneGame(game);
+  }
+  if (!options.setup && game.phase === PHASES.ROLL) {
+    throw new Error('Roll before ending your turn');
+  }
+  if (game.phase === PHASES.ROBBER) {
+    throw new Error('Move the robber before ending your turn');
   }
   const scored = updateWinner(game);
   if (scored.phase === PHASES.GAME_OVER) {

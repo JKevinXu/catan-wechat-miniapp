@@ -86,17 +86,26 @@ test('rollDiceWithValues changes phase and handles robber discard candidates', (
 
   const robberRoll = rollDiceWithValues(game, 3, 4);
   assert.equal(robberRoll.lastRoll.total, 7);
-  assert.equal(robberRoll.phase, 'TRADE_BUILD');
+  assert.equal(robberRoll.phase, 'ROBBER');
   assert.deepEqual(robberRoll.lastRoll.discardCandidates, ['p1']);
   assert.match(robberRoll.lastRoll.message, /Robber/);
 
-  game = endTurn(robberRoll);
+  game = { ...robberRoll, phase: 'TRADE_BUILD' };
+  game = endTurn(game);
   const productionRoll = rollDiceWithValues(game, 4, 4);
   assert.equal(productionRoll.lastRoll.total, 8);
   assert.deepEqual(productionRoll.lastRoll.discardCandidates, []);
   assert.match(productionRoll.lastRoll.message, /Produce/);
 
   assert.throws(() => rollDiceWithValues(productionRoll, 1, 1), /ROLL phase/);
+});
+
+test('endTurn requires rolling before ending a normal turn', () => {
+  const game = createGame(['Ada', 'Ben', 'Chen']);
+
+  assert.throws(() => endTurn(game), /Roll before ending your turn/);
+  const setupAdvanced = endTurn(game, { setup: true });
+  assert.equal(setupAdvanced.currentPlayerIndex, 1);
 });
 
 test('endTurn rotates active player and resets phase', () => {

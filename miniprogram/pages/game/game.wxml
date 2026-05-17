@@ -2,6 +2,7 @@
   <view class="card status-card">
     <view class="title">{{currentPlayer.name}}'s turn</view>
     <view class="subtitle">Phase: {{game.phase}} · Mode: {{mode}}</view>
+    <view class="phase-hint">{{phaseHint}}</view>
     <view wx:if="{{game.lastRoll}}" class="roll-box">
       <view class="roll-total">Roll: {{game.lastRoll.dieA}} + {{game.lastRoll.dieB}} = {{game.lastRoll.total}}</view>
       <view>{{game.lastRoll.message}}</view>
@@ -15,7 +16,7 @@
 
   <view class="card board-card">
     <view class="section-title">Playable Board</view>
-    <view class="subtitle">Tap the board directly: empty points build settlements, owned settlements upgrade to cities after setup, edges build roads, and tiles move the robber. Free setup allows at most two settlements per player.</view>
+    <view class="subtitle">Tap the board directly: empty points build settlements, owned settlements upgrade to cities after setup, edges build roads, and after rolling 7 tiles move the robber. Free setup allows at most two settlements per player.</view>
     <view class="piece-legend">
       <view><text class="piece-icon settlement-icon">🏠</text> Settlement</view>
       <view><text class="piece-icon road-icon">🛣️</text> Road</view>

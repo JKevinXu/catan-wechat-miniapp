@@ -164,13 +164,23 @@ button:disabled {
 }
 
 .feedback-message {
-  background: #fff1f2;
-  border: 1px solid rgba(216, 72, 53, 0.28);
-  border-radius: 16px;
-  color: #b83220;
+  background: #fff3cd;
+  border: 1px solid #f4c95d;
+  border-radius: 14px;
+  color: #7c4d00;
   font-weight: 800;
-  margin-top: 12px;
-  padding: 12px 14px;
+  margin-top: 10px;
+  padding: 10px 12px;
+}
+
+.phase-hint {
+  background: rgba(57, 113, 91, 0.1);
+  border: 1px solid rgba(57, 113, 91, 0.18);
+  border-radius: 12px;
+  color: #315f4f;
+  font-weight: 800;
+  margin: 8px 0 0;
+  padding: 8px 10px;
 }
 
 .play-layout {
