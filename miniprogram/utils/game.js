@@ -216,7 +216,7 @@ function setLargestArmy(game, playerId, enabled) {
   return updateWinner(next);
 }
 
-module.exports = {
+const gameApiExport = {
   RESOURCE_TYPES,
   PHASES,
   createGame,
@@ -232,3 +232,11 @@ module.exports = {
   setLargestArmy,
   updateWinner
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = gameApiExport;
+}
+
+if (typeof window !== 'undefined') {
+  window.CatanGame = gameApiExport;
+}

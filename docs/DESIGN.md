@@ -152,6 +152,10 @@ Pages:
 3. `pages/rules`
    - Static sections generated from `utils/rules.js`.
 
+4. Browser preview
+   - `web/index.html` loads the same pure `miniprogram/utils/game.js` and `miniprogram/utils/rules.js` modules in a normal browser.
+   - `web/app.js` provides a lightweight DOM harness for quick browser QA without WeChat DevTools.
+
 ## Test plan
 
 Use Node’s built-in test runner.

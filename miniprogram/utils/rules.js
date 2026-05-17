@@ -38,9 +38,17 @@ function formatCost(cost) {
     .join(' + ');
 }
 
-module.exports = {
+const rulesApiExport = {
   RESOURCE_LABELS,
   BUILD_COSTS,
   RULE_SECTIONS,
   formatCost
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = rulesApiExport;
+}
+
+if (typeof window !== 'undefined') {
+  window.CatanRules = rulesApiExport;
+}

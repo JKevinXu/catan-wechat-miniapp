@@ -33,6 +33,22 @@ npm run check
 
 Open the project in WeChat DevTools with this directory as the project root. The project uses `touristappid` for local preview; replace it with a real AppID before publishing.
 
+## Browser preview
+
+You can also test the core UX in a normal browser without WeChat DevTools:
+
+```bash
+npm run preview
+```
+
+Then open:
+
+```text
+http://localhost:4173/web/
+```
+
+The browser preview reuses the same pure JavaScript game/rules modules as the Mini Program. It is a fast local test harness, not a production web build.
+
 ## MVP limitations
 
 - No online sync.

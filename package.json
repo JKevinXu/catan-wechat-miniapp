@@ -5,7 +5,8 @@
   "description": "WeChat Mini Program table helper for learning and tracking a simplified Catan game.",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "check": "node --check miniprogram/utils/game.js && node --check miniprogram/utils/rules.js"
+    "check": "node --check miniprogram/utils/game.js && node --check miniprogram/utils/rules.js && node --check web/app.js",
+    "preview": "python3 -m http.server 4173"
   },
   "keywords": [
     "wechat-miniprogram",
