@@ -228,7 +228,7 @@ button:disabled {
 }
 
 .hex-icon {
-  font-size: 22px;
+  font-size: 18px;
   pointer-events: none;
 }
 
@@ -258,7 +258,7 @@ button:disabled {
 
 .hex-resource {
   fill: rgba(34,34,34,0.78);
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 900;
   letter-spacing: 0.06em;
   pointer-events: none;
@@ -278,7 +278,7 @@ button:disabled {
 
 .robber-token text {
   fill: #fffaf0;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 900;
 }
 

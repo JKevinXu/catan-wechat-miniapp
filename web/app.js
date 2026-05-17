@@ -215,8 +215,8 @@ function renderCityIcon(vertex, color) {
 function renderRobberToken(hex) {
   return `
     <g class="robber-token">
-      <circle cx="${hex.x}" cy="${hex.y - 42}" r="14" />
-      <text x="${hex.x}" y="${hex.y - 37}" text-anchor="middle">♟</text>
+      <circle cx="${hex.x + 18}" cy="${hex.y - 18}" r="9" />
+      <text x="${hex.x + 18}" y="${hex.y - 15}" text-anchor="middle">♟</text>
     </g>
   `;
 }
@@ -235,10 +235,12 @@ function renderBoardSvg() {
         ${game.board.hexes.map((hex) => `
           <g class="hex" data-action="board-hex" data-hex="${hex.id}">
             <polygon points="${hexPoints(hex)}" fill="${resourceColors[hex.resource]}" />
-            <text x="${hex.x}" y="${hex.y - 22}" text-anchor="middle" class="hex-icon">${resourceIcons[hex.resource]}</text>
-            <circle cx="${hex.x}" cy="${hex.y + 1}" r="17" class="number-token ${hex.number === 6 || hex.number === 8 ? 'high-probability-number' : ''}" />
-            <text x="${hex.x}" y="${hex.y + 6}" text-anchor="middle" class="hex-number ${hex.number === 6 || hex.number === 8 ? 'high-probability-number' : ''}">${hex.number || ''}</text>
-            <text x="${hex.x}" y="${hex.y + 31}" text-anchor="middle" class="hex-resource">${hex.resource}</text>
+            <text x="${hex.x}" y="${hex.y - 36}" text-anchor="middle" class="hex-icon">${resourceIcons[hex.resource]}</text>
+            ${hex.number ? `
+              <circle cx="${hex.x}" cy="${hex.y + 2}" r="15" class="number-token ${hex.number === 6 || hex.number === 8 ? 'high-probability-number' : ''}" />
+              <text x="${hex.x}" y="${hex.y + 7}" text-anchor="middle" class="hex-number ${hex.number === 6 || hex.number === 8 ? 'high-probability-number' : ''}">${hex.number}</text>
+            ` : ''}
+            <text x="${hex.x}" y="${hex.y + 37}" text-anchor="middle" class="hex-resource">${hex.resource}</text>
             ${hex.hasRobber ? renderRobberToken(hex) : ''}
           </g>
         `).join('')}

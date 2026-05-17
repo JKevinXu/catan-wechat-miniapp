@@ -31,6 +31,20 @@ test('browser board stylesheet includes polished icon styling', () => {
   assert.match(css, /filter: drop-shadow/);
 });
 
+test('browser tile icon layout keeps resource, number, label, and robber separated', () => {
+  const app = fs.readFileSync(path.join(root, 'web', 'app.js'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'web', 'styles.css'), 'utf8');
+
+  assert.match(app, /y=\"\$\{hex\.y - 36\}\" text-anchor=\"middle\" class=\"hex-icon\"/);
+  assert.match(app, /cy=\"\$\{hex\.y \+ 2\}\" r=\"15\"/);
+  assert.match(app, /y=\"\$\{hex\.y \+ 37\}\" text-anchor=\"middle\" class=\"hex-resource\"/);
+  assert.match(app, /cx=\"\$\{hex\.x \+ 18\}\" cy=\"\$\{hex\.y - 18\}\"/);
+  assert.match(app, /\$\{hex\.number \? `/);
+  assert.match(app, /class=\"number-token/);
+  assert.match(css, /\.hex-icon \{[\s\S]*font-size: 18px;/);
+  assert.match(css, /\.hex-resource \{[\s\S]*font-size: 7px;/);
+});
+
 test('mini program board uses visual icons for pieces and resources', () => {
   const wxml = fs.readFileSync(path.join(root, 'miniprogram', 'pages', 'game', 'game.wxml'), 'utf8');
   const wxss = fs.readFileSync(path.join(root, 'miniprogram', 'pages', 'game', 'game.wxss'), 'utf8');
