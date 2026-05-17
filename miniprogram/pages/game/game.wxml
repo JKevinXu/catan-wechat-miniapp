@@ -1,0 +1,72 @@
+<view class="container">
+  <view class="card status-card">
+    <view class="title">{{currentPlayer.name}}'s turn</view>
+    <view class="subtitle">Phase: {{game.phase}}</view>
+    <view wx:if="{{game.lastRoll}}" class="roll-box">
+      <view class="roll-total">Roll: {{game.lastRoll.dieA}} + {{game.lastRoll.dieB}} = {{game.lastRoll.total}}</view>
+      <view>{{game.lastRoll.message}}</view>
+      <view wx:if="{{discardCandidateNames}}" class="warning">Discard candidates: {{discardCandidateNames}}</view>
+    </view>
+    <view wx:if="{{winner}}" class="winner">{{winner.name}} reached 10+ points!</view>
+    <button class="primary-button" disabled="{{!isRollPhase || isGameOver}}" bindtap="roll">Roll dice</button>
+    <button class="secondary-button" disabled="{{isGameOver}}" bindtap="endTurn">End turn</button>
+    <button bindtap="openRules">Rules</button>
+  </view>
+
+  <view wx:for="{{players}}" wx:key="id" class="card player-card">
+    <view class="player-header">
+      <view class="player-name">{{item.name}}</view>
+      <view class="score">{{item.score}} VP</view>
+    </view>
+    <view class="muted">Resources: {{item.resourceTotal}}</view>
+
+    <view class="resource-grid">
+      <view wx:for="{{item.resourceRows}}" wx:for-item="resource" wx:key="name" class="resource-cell">
+        <view class="resource-name">{{resource.name}}</view>
+        <view class="counter-row">
+          <button size="mini" data-player-id="{{item.id}}" data-resource="{{resource.name}}" data-delta="-1" bindtap="adjustResource">-</button>
+          <text>{{resource.count}}</text>
+          <button size="mini" data-player-id="{{item.id}}" data-resource="{{resource.name}}" data-delta="1" bindtap="adjustResource">+</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="counter-section">
+      <view class="counter-line">
+        <text>Roads: {{item.roads}}</text>
+        <button size="mini" data-player-id="{{item.id}}" data-field="roads" data-delta="-1" bindtap="adjustCounter">-</button>
+        <button size="mini" data-player-id="{{item.id}}" data-field="roads" data-delta="1" bindtap="adjustCounter">+</button>
+      </view>
+      <view class="counter-line">
+        <text>Settlements: {{item.settlements}}</text>
+        <button size="mini" data-player-id="{{item.id}}" data-field="settlements" data-delta="-1" bindtap="adjustCounter">-</button>
+        <button size="mini" data-player-id="{{item.id}}" data-field="settlements" data-delta="1" bindtap="adjustCounter">+</button>
+      </view>
+      <view class="counter-line">
+        <text>Cities: {{item.cities}}</text>
+        <button size="mini" data-player-id="{{item.id}}" data-field="cities" data-delta="-1" bindtap="adjustCounter">-</button>
+        <button size="mini" data-player-id="{{item.id}}" bindtap="upgradeCity">Upgrade</button>
+      </view>
+      <view class="counter-line">
+        <text>Dev cards: {{item.developmentCards}}</text>
+        <button size="mini" data-player-id="{{item.id}}" data-field="developmentCards" data-delta="-1" bindtap="adjustCounter">-</button>
+        <button size="mini" data-player-id="{{item.id}}" data-field="developmentCards" data-delta="1" bindtap="adjustCounter">+</button>
+      </view>
+      <view class="counter-line">
+        <text>VP cards: {{item.victoryPointCards}}</text>
+        <button size="mini" data-player-id="{{item.id}}" data-field="victoryPointCards" data-delta="-1" bindtap="adjustCounter">-</button>
+        <button size="mini" data-player-id="{{item.id}}" data-field="victoryPointCards" data-delta="1" bindtap="adjustCounter">+</button>
+      </view>
+      <view class="counter-line">
+        <text>Knights: {{item.knightsPlayed}}</text>
+        <button size="mini" data-player-id="{{item.id}}" data-field="knightsPlayed" data-delta="-1" bindtap="adjustCounter">-</button>
+        <button size="mini" data-player-id="{{item.id}}" data-field="knightsPlayed" data-delta="1" bindtap="adjustCounter">+</button>
+      </view>
+    </view>
+
+    <view class="award-row">
+      <button size="mini" class="award-button" data-player-id="{{item.id}}" bindtap="toggleLongestRoad">{{item.hasLongestRoad ? 'Remove Longest Road' : 'Set Longest Road'}}</button>
+      <button size="mini" class="award-button" data-player-id="{{item.id}}" bindtap="toggleLargestArmy">{{item.hasLargestArmy ? 'Remove Largest Army' : 'Set Largest Army'}}</button>
+    </view>
+  </view>
+</view>

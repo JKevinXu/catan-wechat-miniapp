@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/game/game",
+    "pages/rules/rules"
+  ],
+  "window": {
+    "navigationBarTitleText": "Catan Helper",
+    "navigationBarBackgroundColor": "#6f4e37",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f7ead0"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

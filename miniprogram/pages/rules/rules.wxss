@@ -1,0 +1,21 @@
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 16rpx;
+}
+
+.cost-row {
+  border-bottom: 1rpx solid #e7d4b5;
+  padding: 14rpx 0;
+}
+
+.cost-name {
+  color: #8a3d24;
+  font-weight: 700;
+}
+
+.rule-item {
+  font-size: 28rpx;
+  line-height: 1.6;
+  margin: 8rpx 0;
+}

@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="card">
+    <view class="title">Catan Table Helper</view>
+    <view class="subtitle">Learn the core rules, roll dice, track resources and points, and keep the table moving.</view>
+    <button class="primary-button" bindtap="startGame" data-count="3">Start 3-player game</button>
+    <button class="primary-button" bindtap="startGame" data-count="4">Start 4-player game</button>
+    <button class="secondary-button" bindtap="openRules">Open rules reference</button>
+  </view>
+
+  <view class="card">
+    <view class="section-title">Quick reminder</view>
+    <view class="subtitle">Roll dice → collect resources → trade/build → reach 10 victory points first. On 7, move the robber and discard if you have more than 7 cards.</view>
+  </view>
+</view>

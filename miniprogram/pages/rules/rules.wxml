@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="card">
+    <view class="title">Rules Reference</view>
+    <view class="subtitle">A compact table-side summary for the base game.</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">Build Costs</view>
+    <view wx:for="{{buildCosts}}" wx:key="name" class="cost-row">
+      <view class="cost-name">{{item.name}}</view>
+      <view>{{item.costText}}</view>
+      <view class="muted">{{item.note}}</view>
+    </view>
+  </view>
+
+  <view wx:for="{{sections}}" wx:key="title" class="card">
+    <view class="section-title">{{item.title}}</view>
+    <view wx:for="{{item.items}}" wx:for-item="rule" wx:key="*this" class="rule-item">• {{rule}}</view>
+  </view>
+</view>

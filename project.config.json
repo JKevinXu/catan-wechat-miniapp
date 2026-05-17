@@ -1,0 +1,18 @@
+{
+  "description": "Catan WeChat Mini Program table helper",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.7.0",
+  "appid": "touristappid",
+  "projectname": "catan-wechat-miniapp",
+  "miniprogramRoot": "miniprogram/"
+}
