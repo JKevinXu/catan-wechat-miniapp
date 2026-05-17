@@ -16,18 +16,26 @@
   <view class="card board-card">
     <view class="section-title">Playable Board</view>
     <view class="subtitle">Choose an action, then tap a tile / point / edge below. Browser preview has the full SVG board; Mini Program shows a compact tap list.</view>
+    <view class="piece-legend">
+      <view><text class="piece-icon settlement-icon">🏠</text> Settlement</view>
+      <view><text class="piece-icon road-icon">🛣️</text> Road</view>
+      <view><text class="piece-icon city-icon">🏙️</text> City</view>
+      <view><text class="piece-icon robber-icon">●</text> Robber</view>
+    </view>
+
     <view class="mode-row">
-      <button size="mini" class="{{mode === 'settlement' ? 'active-mode' : ''}}" data-mode="settlement" bindtap="setMode">Settlement</button>
-      <button size="mini" class="{{mode === 'road' ? 'active-mode' : ''}}" data-mode="road" bindtap="setMode">Road</button>
-      <button size="mini" class="{{mode === 'city' ? 'active-mode' : ''}}" data-mode="city" bindtap="setMode">City</button>
-      <button size="mini" class="{{mode === 'robber' ? 'active-mode' : ''}}" data-mode="robber" bindtap="setMode">Robber</button>
+      <button size="mini" class="{{mode === 'settlement' ? 'active-mode' : ''}}" data-mode="settlement" bindtap="setMode">🏠 Settlement</button>
+      <button size="mini" class="{{mode === 'road' ? 'active-mode' : ''}}" data-mode="road" bindtap="setMode">🛣️ Road</button>
+      <button size="mini" class="{{mode === 'city' ? 'active-mode' : ''}}" data-mode="city" bindtap="setMode">🏙️ City</button>
+      <button size="mini" class="{{mode === 'robber' ? 'active-mode' : ''}}" data-mode="robber" bindtap="setMode">● Robber</button>
       <button size="mini" bindtap="toggleFreeBuild">{{freeBuild ? 'Free setup: on' : 'Free setup: off'}}</button>
     </view>
 
     <scroll-view scroll-x class="hex-scroll">
       <view class="hex-strip">
         <view wx:for="{{boardHexes}}" wx:key="id" class="hex-chip resource-{{item.resource}}" data-hex-id="{{item.id}}" bindtap="tapHex">
-          {{item.label}}{{item.robberLabel}}
+          <text class="resource-badge">{{item.icon}}</text>
+          <text>{{item.label}}{{item.robberLabel}}</text>
         </view>
       </view>
     </scroll-view>

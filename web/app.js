@@ -16,6 +16,22 @@ const resourceColors = {
   desert: '#d7b46a'
 };
 
+const resourceIcons = {
+  brick: '🧱',
+  lumber: '🌲',
+  wool: '🐑',
+  grain: '🌾',
+  ore: '⛰️',
+  desert: '🏜️'
+};
+
+const modeIcons = {
+  settlement: '🏠',
+  road: '🛣️',
+  city: '🏙️',
+  robber: '●'
+};
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -113,7 +129,7 @@ function renderGame() {
           ${winner ? `<div class="winner">${escapeHtml(winner.name)} reached 10+ points!</div>` : ''}
         </div>
         <div class="actions status-actions">
-          <button class="primary" data-action="roll" ${game.phase !== 'ROLL' || winner ? 'disabled' : ''}>Roll dice</button>
+          <button class="primary dice-button" data-action="roll" ${game.phase !== 'ROLL' || winner ? 'disabled' : ''}>🎲 Roll dice</button>
           <button class="secondary" data-action="end-turn" ${winner ? 'disabled' : ''}>End turn</button>
           <button class="neutral" data-action="start" data-count="3">Restart 3P</button>
           <button class="neutral" data-action="start" data-count="4">Restart 4P</button>
@@ -132,7 +148,7 @@ function renderGame() {
           </div>
           ${renderBoardSvg()}
           <div class="legend">
-            ${Object.entries(resourceColors).map(([name, color]) => `<span><i style="background:${color}"></i>${name}</span>`).join('')}
+            ${Object.entries(resourceColors).map(([name, color]) => `<span><i class="resource-icon" style="background:${color}">${resourceIcons[name]}</i>${name}</span>`).join('')}
           </div>
         </div>
 
@@ -146,7 +162,7 @@ function renderGame() {
 }
 
 function renderModeButton(mode, label) {
-  return `<button class="${boardMode === mode ? 'primary' : 'neutral'}" data-action="mode" data-mode="${mode}">${label}</button>`;
+  return `<button class="mode-button ${boardMode === mode ? 'primary' : 'neutral'}" data-action="mode" data-mode="${mode}"><span>${modeIcons[mode]}</span>${label}</button>`;
 }
 
 function hexPoints(hex) {
@@ -157,6 +173,52 @@ function hexPoints(hex) {
     points.push(`${hex.x + size * Math.cos(angle)},${hex.y + size * Math.sin(angle)}`);
   }
   return points.join(' ');
+}
+
+
+function renderRoadIcon(x1, y1, x2, y2, color, owned) {
+  const roadLine = owned
+    ? `<line class="road owned" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" />`
+    : `<line class="road empty-road" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" />`;
+  return `
+    <line class="road-shadow" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" />
+    ${roadLine}
+  `;
+}
+
+function renderSettlementIcon(vertex, color) {
+  const x = vertex.x;
+  const y = vertex.y;
+  return `
+    <g class="settlement-piece building" style="--piece-color:${color}">
+      <polygon points="${x - 10},${y - 1} ${x},${y - 12} ${x + 10},${y - 1}" fill="${color}" />
+      <rect x="${x - 8}" y="${y - 1}" width="16" height="13" rx="2" fill="${color}" />
+      <rect x="${x - 2}" y="${y + 4}" width="4" height="8" rx="1" fill="#fff8e8" opacity="0.82" />
+    </g>
+  `;
+}
+
+function renderCityIcon(vertex, color) {
+  const x = vertex.x;
+  const y = vertex.y;
+  return `
+    <g class="city-piece building" style="--piece-color:${color}">
+      <polygon points="${x - 13},${y - 1} ${x - 4},${y - 11} ${x + 5},${y - 1}" fill="${color}" />
+      <rect x="${x - 12}" y="${y - 1}" width="17" height="14" rx="2" fill="${color}" />
+      <rect x="${x + 4}" y="${y - 15}" width="10" height="28" rx="2" fill="${color}" />
+      <rect x="${x + 7}" y="${y - 10}" width="4" height="4" rx="1" fill="#fff8e8" opacity="0.82" />
+      <rect x="${x - 5}" y="${y + 5}" width="4" height="8" rx="1" fill="#fff8e8" opacity="0.82" />
+    </g>
+  `;
+}
+
+function renderRobberToken(hex) {
+  return `
+    <g class="robber-token">
+      <circle cx="${hex.x}" cy="${hex.y - 42}" r="14" />
+      <text x="${hex.x}" y="${hex.y - 37}" text-anchor="middle">♟</text>
+    </g>
+  `;
 }
 
 function renderBoardSvg() {
@@ -173,10 +235,11 @@ function renderBoardSvg() {
         ${game.board.hexes.map((hex) => `
           <g class="hex" data-action="board-hex" data-hex="${hex.id}">
             <polygon points="${hexPoints(hex)}" fill="${resourceColors[hex.resource]}" />
-            <circle cx="${hex.x}" cy="${hex.y}" r="16" fill="${hex.number ? '#fff8e8' : '#d7b46a'}" stroke="#3d2b1f" />
-            <text x="${hex.x}" y="${hex.y - 3}" text-anchor="middle" class="hex-number">${hex.number || ''}</text>
-            <text x="${hex.x}" y="${hex.y + 14}" text-anchor="middle" class="hex-resource">${hex.resource}</text>
-            ${hex.hasRobber ? `<text x="${hex.x}" y="${hex.y - 24}" text-anchor="middle" class="robber">●</text>` : ''}
+            <text x="${hex.x}" y="${hex.y - 22}" text-anchor="middle" class="hex-icon">${resourceIcons[hex.resource]}</text>
+            <circle cx="${hex.x}" cy="${hex.y + 1}" r="17" class="number-token ${hex.number === 6 || hex.number === 8 ? 'high-probability-number' : ''}" />
+            <text x="${hex.x}" y="${hex.y + 6}" text-anchor="middle" class="hex-number ${hex.number === 6 || hex.number === 8 ? 'high-probability-number' : ''}">${hex.number || ''}</text>
+            <text x="${hex.x}" y="${hex.y + 31}" text-anchor="middle" class="hex-resource">${hex.resource}</text>
+            ${hex.hasRobber ? renderRobberToken(hex) : ''}
           </g>
         `).join('')}
       </g>
@@ -187,7 +250,7 @@ function renderBoardSvg() {
           const owner = edge.roadOwnerId ? playerById(edge.roadOwnerId) : null;
           return `
             <line class="edge-hit" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" data-action="board-edge" data-edge="${edge.id}" />
-            <line class="road ${owner ? 'owned' : ''}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${owner ? owner.color : 'transparent'}" />
+            ${renderRoadIcon(a.x, a.y, b.x, b.y, owner ? owner.color : 'transparent', Boolean(owner))}
           `;
         }).join('')}
       </g>
@@ -198,7 +261,7 @@ function renderBoardSvg() {
           return `
             <g data-action="board-vertex" data-vertex="${vertex.id}" class="vertex-group">
               <circle class="vertex-hit" cx="${vertex.x}" cy="${vertex.y}" r="10" />
-              ${owner ? `<${isCity ? 'rect' : 'circle'} class="building" ${isCity ? `x="${vertex.x - 8}" y="${vertex.y - 8}" width="16" height="16" rx="3"` : `cx="${vertex.x}" cy="${vertex.y}" r="8"`} fill="${owner.color}" />` : `<circle class="vertex-dot" cx="${vertex.x}" cy="${vertex.y}" r="3" />`}
+              ${owner ? (isCity ? renderCityIcon(vertex, owner.color) : renderSettlementIcon(vertex, owner.color)) : `<circle class="vertex-dot" cx="${vertex.x}" cy="${vertex.y}" r="3" />`}
             </g>
           `;
         }).join('')}
@@ -219,7 +282,7 @@ function renderPlayersPanel() {
           </div>
           <div class="muted">Roads ${player.roads} · Settlements ${player.settlements} · Cities ${player.cities}</div>
           <div class="resource-line">
-            ${gameApi.RESOURCE_TYPES.map((resource) => `<span>${resource}: ${player.resources[resource]}</span>`).join('')}
+            ${gameApi.RESOURCE_TYPES.map((resource) => `<span><b>${resourceIcons[resource]}</b>${resource}: ${player.resources[resource]}</span>`).join('')}
           </div>
         </article>
       `).join('')}

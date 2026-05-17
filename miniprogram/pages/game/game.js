@@ -16,6 +16,15 @@ const {
   setLargestArmy
 } = require('../../utils/game');
 
+const RESOURCE_ICONS = {
+  brick: '🧱',
+  lumber: '🌲',
+  wool: '🐑',
+  grain: '🌾',
+  ore: '⛰️',
+  desert: '🏜️'
+};
+
 function withViewModel(game) {
   const currentPlayer = game.players[game.currentPlayerIndex] || null;
   const discardCandidateNames = game.lastRoll
@@ -29,6 +38,7 @@ function withViewModel(game) {
   const boardHexes = game.board.hexes.map((hex) => ({
     ...hex,
     label: hex.number ? `${hex.resource} ${hex.number}` : hex.resource,
+    icon: RESOURCE_ICONS[hex.resource] || '⬢',
     robberLabel: hex.hasRobber ? ' ● robber' : ''
   }));
 

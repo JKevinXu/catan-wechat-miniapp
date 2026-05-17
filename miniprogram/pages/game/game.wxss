@@ -1,55 +1,91 @@
 .status-card {
-  border-color: #c75b39;
+  background: linear-gradient(135deg, #fffaf0, #fff0d2);
+  border-color: #ff385c;
 }
 
 .roll-box {
-  background: #f2dfb8;
-  border-radius: 14rpx;
+  background: #fff4d6;
+  border: 2rpx solid rgba(122, 76, 43, 0.14);
+  border-radius: 24rpx;
   line-height: 1.5;
   margin: 18rpx 0;
-  padding: 18rpx;
+  padding: 20rpx;
 }
 
 .roll-total, .player-name, .score, .section-title {
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: 34rpx;
+  letter-spacing: -1rpx;
   margin-bottom: 12rpx;
 }
 
 .section-subtitle {
-  color: #6f4e37;
+  color: #6a5a47;
   font-size: 26rpx;
-  font-weight: 700;
-  margin: 18rpx 0 10rpx;
+  font-weight: 800;
+  margin: 22rpx 0 12rpx;
 }
 
 .warning {
   color: #b83220;
-  font-weight: 700;
+  font-weight: 800;
   margin-top: 8rpx;
 }
 
 .winner {
-  background: #4d7c59;
-  border-radius: 14rpx;
+  background: linear-gradient(135deg, #2f7d59, #55aa73);
+  border-radius: 22rpx;
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
   margin: 18rpx 0;
-  padding: 18rpx;
+  padding: 20rpx;
 }
 
-.mode-row, .award-row {
+.mode-row, .award-row, .piece-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
-  margin: 16rpx 0;
+  gap: 14rpx;
+  margin: 18rpx 0;
 }
 
+.piece-legend {
+  background: rgba(255, 255, 255, 0.78);
+  border: 2rpx solid rgba(122, 76, 43, 0.12);
+  border-radius: 24rpx;
+  padding: 16rpx;
+}
+
+.piece-legend view {
+  align-items: center;
+  background: #fffaf0;
+  border-radius: 999rpx;
+  color: #222;
+  display: inline-flex;
+  font-size: 24rpx;
+  font-weight: 800;
+  gap: 8rpx;
+  padding: 10rpx 16rpx;
+}
+
+.piece-icon {
+  align-items: center;
+  border-radius: 999rpx;
+  display: inline-flex;
+  height: 38rpx;
+  justify-content: center;
+  width: 38rpx;
+}
+
+.settlement-icon { background: #ffebe8; }
+.road-icon { background: #e9f3ff; }
+.city-icon { background: #eee9ff; }
+.robber-icon { background: #222; color: #fff; }
+
 .active-mode {
-  background: #c75b39;
+  background: linear-gradient(135deg, #ff385c, #d92d4f);
   color: #fff;
 }
 
@@ -60,20 +96,36 @@
 
 .hex-strip {
   display: flex;
-  gap: 12rpx;
-  padding: 12rpx 0;
+  gap: 14rpx;
+  padding: 14rpx 0;
 }
 
 .hex-chip {
-  border: 2rpx solid #3d2b1f;
-  border-radius: 16rpx;
-  color: #3d2b1f;
-  display: inline-block;
+  align-items: center;
+  border: 4rpx solid rgba(255,255,255,0.88);
+  border-radius: 26rpx;
+  box-shadow: 0 10rpx 18rpx rgba(61, 43, 31, 0.16);
+  color: #222;
+  display: inline-flex;
+  flex-direction: column;
   font-size: 24rpx;
-  min-width: 150rpx;
-  padding: 16rpx;
+  font-weight: 800;
+  gap: 8rpx;
+  min-width: 162rpx;
+  padding: 18rpx 16rpx;
   text-align: center;
   text-transform: capitalize;
+}
+
+.resource-badge {
+  align-items: center;
+  background: rgba(255,255,255,0.82);
+  border-radius: 999rpx;
+  display: inline-flex;
+  font-size: 36rpx;
+  height: 58rpx;
+  justify-content: center;
+  width: 58rpx;
 }
 
 .resource-brick { background: #c75b39; color: #fff; }
@@ -85,17 +137,26 @@
 
 .point-grid {
   display: grid;
-  gap: 10rpx;
+  gap: 12rpx;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   max-height: 360rpx;
   overflow: auto;
 }
 
+.point-grid button {
+  border-radius: 999rpx;
+  font-weight: 700;
+}
+
 .log-line {
-  border-top: 1rpx solid #e7d4b5;
-  color: #6f4e37;
+  border-top: 1rpx solid rgba(122, 76, 43, 0.16);
+  color: #6a5a47;
   line-height: 1.4;
-  padding: 10rpx 0;
+  padding: 12rpx 0;
+}
+
+.player-card {
+  border-left: 12rpx solid #ff385c;
 }
 
 .player-header {
@@ -103,6 +164,13 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 12rpx;
+}
+
+.score {
+  background: #222;
+  border-radius: 999rpx;
+  color: #fff;
+  padding: 8rpx 16rpx;
 }
 
 .resource-grid {
@@ -113,14 +181,15 @@
 }
 
 .resource-cell {
-  background: #f2dfb8;
-  border-radius: 14rpx;
-  padding: 14rpx;
+  background: #fff4d6;
+  border-radius: 20rpx;
+  padding: 16rpx;
 }
 
 .resource-name {
-  color: #6f4e37;
+  color: #6a5a47;
   font-size: 24rpx;
+  font-weight: 800;
   text-transform: capitalize;
 }
 
@@ -132,6 +201,6 @@
 }
 
 .award-button {
-  background: #6f4e37;
+  background: #222;
   color: #fff;
 }
