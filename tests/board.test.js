@@ -93,6 +93,23 @@ test('opening setup does not allow city upgrades that bypass the two-settlement 
   );
 });
 
+test('normal building is blocked until after the player rolls', () => {
+  let game = createPlayableGame(['Ada', 'Ben', 'Chen']);
+  const vertex = game.board.vertices[0];
+  const edge = game.board.edges.find((item) => item.vertexIds.includes(vertex.id));
+
+  game = buildSettlement(game, 'p1', vertex.id, { free: true, setup: true });
+  game.players[0].resources.brick = 2;
+  game.players[0].resources.lumber = 2;
+  game.players[0].resources.wool = 1;
+  game.players[0].resources.grain = 1;
+
+  assert.throws(
+    () => buildRoad(game, 'p1', edge.id),
+    /roll dice before building/i
+  );
+});
+
 test('buildRoad places a road connected to the player settlement', () => {
   let game = createPlayableGame(['Ada', 'Ben', 'Chen']);
   const vertex = game.board.vertices[0];
@@ -115,6 +132,7 @@ test('produceResourcesForRoll gives resources to settlements and cities on match
 
   assert.equal(game.players[0].resources[hex.resource], 1);
 
+  game.phase = 'TRADE_BUILD';
   game = upgradeCityAtVertex(game, 'p1', vertex.id, { free: true });
   game = produceResourcesForRoll(game, hex.number);
 

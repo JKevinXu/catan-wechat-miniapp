@@ -6,6 +6,7 @@ let route = 'game';
 let game = gameApi.createPlayableGame(3);
 let boardMode = 'settlement';
 let freeBuild = true;
+let feedbackMessage = '';
 
 const resourceColors = {
   brick: '#c75b39',
@@ -57,16 +58,24 @@ function setRoute(nextRoute) {
 function startGame(playerCount) {
   game = gameApi.createPlayableGame(playerCount);
   boardMode = 'settlement';
+  freeBuild = true;
+  feedbackMessage = '';
   route = 'game';
+  render();
+}
+
+function showFeedback(message) {
+  feedbackMessage = message;
   render();
 }
 
 function mutate(action) {
   try {
     game = action(game);
+    feedbackMessage = '';
     render();
   } catch (error) {
-    window.alert(error.message);
+    showFeedback(error.message);
   }
 }
 
@@ -127,6 +136,7 @@ function renderGame() {
             </div>
           ` : ''}
           ${winner ? `<div class="winner">${escapeHtml(winner.name)} reached 10+ points!</div>` : ''}
+          ${feedbackMessage ? `<div class="feedback-message">${escapeHtml(feedbackMessage)}</div>` : ''}
         </div>
         <div class="actions status-actions">
           <button class="primary dice-button" data-action="roll" ${game.phase !== 'ROLL' || winner ? 'disabled' : ''}>🎲 Roll dice</button>
@@ -360,6 +370,10 @@ app.addEventListener('click', (event) => {
 });
 
 function handleVertexClick(vertexId, player, buildOptions) {
+  if (!freeBuild && game.phase === 'ROLL') {
+    showFeedback('Roll dice before building.');
+    return;
+  }
   const vertex = game.board.vertices.find((item) => item.id === vertexId);
   if (!vertex) return;
 
@@ -377,6 +391,10 @@ function handleVertexClick(vertexId, player, buildOptions) {
 }
 
 function handleEdgeClick(edgeId, player, buildOptions) {
+  if (!freeBuild && game.phase === 'ROLL') {
+    showFeedback('Roll dice before building.');
+    return;
+  }
   mutate((state) => gameApi.buildRoad(state, player.id, edgeId, buildOptions));
 }
 

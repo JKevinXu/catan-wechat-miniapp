@@ -38,3 +38,13 @@ test('browser board supports direct click actions without choosing a build mode 
   assert.match(app, /Click empty corners to build settlements; click your settlements to upgrade cities after setup; click edges to build roads; click tiles to move the robber\. Free setup allows at most two settlements per player\./);
   assert.match(css, /\.interaction-hint/);
 });
+
+test('browser board shows invalid-action feedback and resets setup on restart', () => {
+  const app = fs.readFileSync(path.join(root, 'web', 'app.js'), 'utf8');
+
+  assert.match(app, /let feedbackMessage = ''/);
+  assert.match(app, /function showFeedback\(message\)/);
+  assert.match(app, /<div class="feedback-message"/);
+  assert.match(app, /freeBuild = true;\n  feedbackMessage = '';/);
+  assert.match(app, /Roll dice before building/);
+});

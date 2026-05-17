@@ -297,7 +297,14 @@ function payCost(player, cost) {
   }
 }
 
+function assertBuildAllowed(game, options = {}) {
+  if (!options.setup && game.phase !== PHASES.TRADE_BUILD) {
+    throw new Error('Roll dice before building');
+  }
+}
+
 function buildSettlement(game, playerId, vertexId, options = {}) {
+  assertBuildAllowed(game, options);
   const next = cloneGame(game);
   const playerIndex = findPlayerIndex(next, playerId);
   const player = next.players[playerIndex];
@@ -333,6 +340,7 @@ function buildSettlement(game, playerId, vertexId, options = {}) {
 }
 
 function buildRoad(game, playerId, edgeId, options = {}) {
+  assertBuildAllowed(game, options);
   const next = cloneGame(game);
   const playerIndex = findPlayerIndex(next, playerId);
   const player = next.players[playerIndex];
@@ -355,6 +363,7 @@ function buildRoad(game, playerId, edgeId, options = {}) {
 }
 
 function upgradeCityAtVertex(game, playerId, vertexId, options = {}) {
+  assertBuildAllowed(game, options);
   const next = cloneGame(game);
   const playerIndex = findPlayerIndex(next, playerId);
   const player = next.players[playerIndex];
