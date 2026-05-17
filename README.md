@@ -4,9 +4,11 @@ A WeChat Mini Program MVP for learning and tracking a simplified Catan table gam
 
 ## What it does
 
-- Starts a 3-player or 4-player table helper.
+- Starts a 3-player or 4-player local pass-and-play game.
+- Renders a playable 19-hex board with resource tiles, number tokens, vertices, edges, roads, settlements, cities, and robber marker.
+- Supports board actions: build settlement, build road, upgrade city, move robber.
+- Rolls 2d6 and automatically produces resources from unblocked matching hexes.
 - Tracks public player counters: resources, roads, settlements, cities, development cards, victory point cards, played knights, Longest Road, and Largest Army.
-- Rolls 2d6 and shows production or robber reminders.
 - Calculates visible victory points and marks game over when the current player reaches 10+ points.
 - Includes a plain-text rules reference for build costs, turn flow, robber, development cards, and scoring.
 
@@ -17,7 +19,7 @@ This helper uses original text and no official Catan artwork. It is not an onlin
 ```text
 docs/DESIGN.md                 Product and implementation design
 miniprogram/                   WeChat Mini Program source
-miniprogram/utils/game.js      Pure testable game state logic
+miniprogram/utils/game.js      Pure testable game state, board topology, and rules actions
 miniprogram/utils/rules.js     Static rules reference data
 tests/game.test.js             Node unit tests
 ```
@@ -52,5 +54,6 @@ The browser preview reuses the same pure JavaScript game/rules modules as the Mi
 ## MVP limitations
 
 - No online sync.
-- No exact board map production calculation.
+- Robber stealing/discarding is currently prompted by the UI but not fully enforced.
+- Opening placement order is assisted with a “free setup builds” toggle rather than a fully scripted snake-order setup phase.
 - No login, backend, ads, or analytics.

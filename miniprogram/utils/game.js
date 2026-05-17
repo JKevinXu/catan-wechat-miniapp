@@ -5,6 +5,8 @@ const PHASES = {
   GAME_OVER: 'GAME_OVER'
 };
 
+const PLAYER_COLORS = ['#d94835', '#2f7ed8', '#2f9e44', '#8b5cf6'];
+
 function createEmptyResources() {
   return RESOURCE_TYPES.reduce((resources, type) => {
     resources[type] = 0;
@@ -30,13 +32,14 @@ function assertPlayerCount(names) {
   }
 }
 
-function createPlayer(name, index) {
+function createPlayer(name, index, startingPieces = { roads: 2, settlements: 2 }) {
   return {
     id: `p${index + 1}`,
     name,
+    color: PLAYER_COLORS[index % PLAYER_COLORS.length],
     resources: createEmptyResources(),
-    roads: 2,
-    settlements: 2,
+    roads: startingPieces.roads,
+    settlements: startingPieces.settlements,
     cities: 0,
     developmentCards: 0,
     victoryPointCards: 0,
@@ -46,10 +49,31 @@ function createPlayer(name, index) {
   };
 }
 
+function cloneBoard(board) {
+  if (!board) return undefined;
+  return {
+    ...board,
+    hexes: board.hexes.map((hex) => ({ ...hex, vertexIds: [...hex.vertexIds], edgeIds: [...hex.edgeIds] })),
+    vertices: board.vertices.map((vertex) => ({
+      ...vertex,
+      adjacentHexIds: [...vertex.adjacentHexIds],
+      edgeIds: [...vertex.edgeIds],
+      building: vertex.building ? { ...vertex.building } : null
+    })),
+    edges: board.edges.map((edge) => ({ ...edge, vertexIds: [...edge.vertexIds] }))
+  };
+}
+
 function cloneGame(game) {
   return {
     ...game,
-    lastRoll: game.lastRoll ? { ...game.lastRoll, discardCandidates: [...game.lastRoll.discardCandidates] } : null,
+    board: cloneBoard(game.board),
+    log: game.log ? [...game.log] : [],
+    lastRoll: game.lastRoll ? {
+      ...game.lastRoll,
+      discardCandidates: [...game.lastRoll.discardCandidates],
+      production: game.lastRoll.production ? game.lastRoll.production.map((item) => ({ ...item })) : []
+    } : null,
     players: game.players.map((player) => ({
       ...player,
       resources: { ...player.resources }
@@ -67,7 +91,116 @@ function createGame(input = 3) {
     phase: PHASES.ROLL,
     lastRoll: null,
     winnerId: null,
-    players: names.map(createPlayer)
+    log: [],
+    players: names.map((name, index) => createPlayer(name, index))
+  };
+}
+
+function axialDistance(q, r) {
+  const s = -q - r;
+  return Math.max(Math.abs(q), Math.abs(r), Math.abs(s));
+}
+
+function pointKey(x, y) {
+  return `${Math.round(x * 1000) / 1000},${Math.round(y * 1000) / 1000}`;
+}
+
+function createBoard() {
+  const size = 42;
+  const resources = [
+    'ore', 'wool', 'lumber',
+    'brick', 'grain', 'wool', 'brick',
+    'grain', 'lumber', 'desert', 'lumber', 'ore',
+    'lumber', 'ore', 'grain', 'wool',
+    'brick', 'grain', 'wool'
+  ];
+  const numbers = [10, 2, 9, 12, 6, 4, 10, 9, 11, null, 3, 8, 8, 3, 4, 5, 5, 6, 11];
+  const coords = [];
+
+  for (let r = -2; r <= 2; r += 1) {
+    for (let q = -2; q <= 2; q += 1) {
+      if (axialDistance(q, r) <= 2) coords.push({ q, r });
+    }
+  }
+
+  const vertexMap = new Map();
+  const edgeMap = new Map();
+  const vertices = [];
+  const edges = [];
+
+  function getVertexId(x, y) {
+    const key = pointKey(x, y);
+    if (!vertexMap.has(key)) {
+      const id = `v${vertices.length}`;
+      vertexMap.set(key, id);
+      vertices.push({ id, x: Math.round(x * 100) / 100, y: Math.round(y * 100) / 100, adjacentHexIds: [], edgeIds: [], building: null });
+    }
+    return vertexMap.get(key);
+  }
+
+  function getEdgeId(a, b) {
+    const key = [a, b].sort().join('|');
+    if (!edgeMap.has(key)) {
+      const id = `e${edges.length}`;
+      edgeMap.set(key, id);
+      edges.push({ id, vertexIds: [a, b], roadOwnerId: null });
+    }
+    return edgeMap.get(key);
+  }
+
+  const hexes = coords.map(({ q, r }, index) => {
+    const id = `h${index}`;
+    const cx = size * Math.sqrt(3) * (q + r / 2);
+    const cy = size * 1.5 * r;
+    const vertexIds = [];
+    for (let i = 0; i < 6; i += 1) {
+      const angle = (Math.PI / 180) * (30 + 60 * i);
+      const vertexId = getVertexId(cx + size * Math.cos(angle), cy + size * Math.sin(angle));
+      vertexIds.push(vertexId);
+      const vertex = vertices.find((item) => item.id === vertexId);
+      vertex.adjacentHexIds.push(id);
+    }
+    const edgeIds = vertexIds.map((vertexId, i) => {
+      const edgeId = getEdgeId(vertexId, vertexIds[(i + 1) % 6]);
+      return edgeId;
+    });
+    return {
+      id,
+      q,
+      r,
+      x: Math.round(cx * 100) / 100,
+      y: Math.round(cy * 100) / 100,
+      resource: resources[index],
+      number: numbers[index],
+      hasRobber: resources[index] === 'desert',
+      vertexIds,
+      edgeIds
+    };
+  });
+
+  for (const edge of edges) {
+    for (const vertexId of edge.vertexIds) {
+      const vertex = vertices.find((item) => item.id === vertexId);
+      vertex.edgeIds.push(edge.id);
+    }
+  }
+
+  return { size, hexes, vertices, edges };
+}
+
+function createPlayableGame(input = 3) {
+  const names = normalizeNames(input);
+  assertPlayerCount(names);
+  return {
+    targetScore: 10,
+    currentPlayerIndex: 0,
+    phase: PHASES.ROLL,
+    lastRoll: null,
+    winnerId: null,
+    selectedMode: 'settlement',
+    log: ['New playable board created. Place opening settlements and roads, or start rolling.'],
+    board: createBoard(),
+    players: names.map((name, index) => createPlayer(name, index, { roads: 0, settlements: 0 }))
   };
 }
 
@@ -88,10 +221,20 @@ function findPlayerIndex(game, playerId) {
   return index;
 }
 
+function findBoardItem(items, id, label) {
+  const item = items.find((entry) => entry.id === id);
+  if (!item) throw new Error(`Unknown ${label}: ${id}`);
+  return item;
+}
+
 function assertResource(resource) {
   if (!RESOURCE_TYPES.includes(resource)) {
     throw new Error(`Unknown resource: ${resource}`);
   }
+}
+
+function addLog(game, message) {
+  game.log = [message, ...(game.log || [])].slice(0, 12);
 }
 
 function adjustResource(game, playerId, resource, delta) {
@@ -111,7 +254,7 @@ function adjustCounter(game, playerId, field, delta) {
   const next = cloneGame(game);
   const index = findPlayerIndex(next, playerId);
   next.players[index][field] = Math.max(0, Number(next.players[index][field] || 0) + Number(delta));
-  return next;
+  return updateWinner(next);
 }
 
 function upgradeSettlementToCity(game, playerId) {
@@ -123,6 +266,140 @@ function upgradeSettlementToCity(game, playerId) {
   next.players[index].settlements -= 1;
   next.players[index].cities += 1;
   return updateWinner(next);
+}
+
+function getAdjacentVertexIds(board, vertexId) {
+  const vertex = findBoardItem(board.vertices, vertexId, 'vertex');
+  const adjacent = new Set();
+  for (const edgeId of vertex.edgeIds) {
+    const edge = findBoardItem(board.edges, edgeId, 'edge');
+    for (const id of edge.vertexIds) {
+      if (id !== vertexId) adjacent.add(id);
+    }
+  }
+  return [...adjacent];
+}
+
+function playerHasNetworkAtVertex(board, playerId, vertexId) {
+  const vertex = findBoardItem(board.vertices, vertexId, 'vertex');
+  if (vertex.building && vertex.building.playerId === playerId) return true;
+  return vertex.edgeIds.some((edgeId) => findBoardItem(board.edges, edgeId, 'edge').roadOwnerId === playerId);
+}
+
+function canAfford(player, cost) {
+  return Object.keys(cost).every((resource) => player.resources[resource] >= cost[resource]);
+}
+
+function payCost(player, cost) {
+  for (const [resource, amount] of Object.entries(cost)) {
+    player.resources[resource] -= amount;
+  }
+}
+
+function buildSettlement(game, playerId, vertexId, options = {}) {
+  const next = cloneGame(game);
+  const playerIndex = findPlayerIndex(next, playerId);
+  const player = next.players[playerIndex];
+  const vertex = findBoardItem(next.board.vertices, vertexId, 'vertex');
+  if (vertex.building) throw new Error('That vertex already has a building');
+
+  const adjacentBuilding = getAdjacentVertexIds(next.board, vertexId)
+    .map((id) => findBoardItem(next.board.vertices, id, 'vertex'))
+    .some((item) => item.building);
+  if (adjacentBuilding) throw new Error('Settlement violates the distance rule');
+
+  if (!options.setup && !playerHasNetworkAtVertex(next.board, playerId, vertexId)) {
+    throw new Error('Settlement must connect to one of your roads');
+  }
+
+  const cost = { brick: 1, lumber: 1, wool: 1, grain: 1 };
+  if (!options.free) {
+    if (!canAfford(player, cost)) throw new Error('Not enough resources to build settlement');
+    payCost(player, cost);
+  }
+
+  vertex.building = { playerId, type: 'settlement' };
+  player.settlements += 1;
+  addLog(next, `${player.name} built a settlement.`);
+  return updateWinner(next);
+}
+
+function buildRoad(game, playerId, edgeId, options = {}) {
+  const next = cloneGame(game);
+  const playerIndex = findPlayerIndex(next, playerId);
+  const player = next.players[playerIndex];
+  const edge = findBoardItem(next.board.edges, edgeId, 'edge');
+  if (edge.roadOwnerId) throw new Error('That edge already has a road');
+
+  const connects = edge.vertexIds.some((vertexId) => playerHasNetworkAtVertex(next.board, playerId, vertexId));
+  if (!connects) throw new Error('Road must connect to your settlement, city, or road');
+
+  const cost = { brick: 1, lumber: 1 };
+  if (!options.free) {
+    if (!canAfford(player, cost)) throw new Error('Not enough resources to build road');
+    payCost(player, cost);
+  }
+
+  edge.roadOwnerId = playerId;
+  player.roads += 1;
+  addLog(next, `${player.name} built a road.`);
+  return updateWinner(next);
+}
+
+function upgradeCityAtVertex(game, playerId, vertexId, options = {}) {
+  const next = cloneGame(game);
+  const playerIndex = findPlayerIndex(next, playerId);
+  const player = next.players[playerIndex];
+  const vertex = findBoardItem(next.board.vertices, vertexId, 'vertex');
+  if (!vertex.building || vertex.building.playerId !== playerId || vertex.building.type !== 'settlement') {
+    throw new Error('Choose one of your settlements to upgrade');
+  }
+
+  const cost = { grain: 2, ore: 3 };
+  if (!options.free) {
+    if (!canAfford(player, cost)) throw new Error('Not enough resources to upgrade city');
+    payCost(player, cost);
+  }
+
+  vertex.building = { playerId, type: 'city' };
+  player.settlements -= 1;
+  player.cities += 1;
+  addLog(next, `${player.name} upgraded a settlement to a city.`);
+  return updateWinner(next);
+}
+
+function moveRobber(game, hexId) {
+  const next = cloneGame(game);
+  const target = findBoardItem(next.board.hexes, hexId, 'hex');
+  next.board.hexes.forEach((hex) => { hex.hasRobber = false; });
+  target.hasRobber = true;
+  addLog(next, `Robber moved to ${target.resource}${target.number ? ` ${target.number}` : ''}.`);
+  return next;
+}
+
+function produceResourcesForRoll(game, rollTotal) {
+  const next = cloneGame(game);
+  if (!next.board || rollTotal === 7) return next;
+  const production = [];
+
+  for (const hex of next.board.hexes) {
+    if (hex.number !== rollTotal || hex.hasRobber || !RESOURCE_TYPES.includes(hex.resource)) continue;
+    for (const vertexId of hex.vertexIds) {
+      const vertex = findBoardItem(next.board.vertices, vertexId, 'vertex');
+      if (!vertex.building) continue;
+      const playerIndex = findPlayerIndex(next, vertex.building.playerId);
+      const amount = vertex.building.type === 'city' ? 2 : 1;
+      next.players[playerIndex].resources[hex.resource] += amount;
+      production.push({ playerId: vertex.building.playerId, resource: hex.resource, amount, hexId: hex.id });
+    }
+  }
+
+  if (production.length) {
+    addLog(next, `Roll ${rollTotal}: produced ${production.map((item) => `${item.amount} ${item.resource} for ${item.playerId}`).join(', ')}.`);
+  } else {
+    addLog(next, `Roll ${rollTotal}: no production.`);
+  }
+  return next;
 }
 
 function validateDie(value) {
@@ -138,8 +415,11 @@ function rollDiceWithValues(game, dieA, dieB) {
   validateDie(dieA);
   validateDie(dieB);
 
-  const next = cloneGame(game);
   const total = dieA + dieB;
+  let next = cloneGame(game);
+  if (next.board && total !== 7) {
+    next = produceResourcesForRoll(next, total);
+  }
   const discardCandidates = total === 7
     ? next.players.filter((player) => totalResources(player) > 7).map((player) => player.id)
     : [];
@@ -150,9 +430,10 @@ function rollDiceWithValues(game, dieA, dieB) {
     dieB,
     total,
     discardCandidates,
+    production: [],
     message: total === 7
       ? 'Robber activated: players with more than 7 resource cards discard half, then move the robber and steal 1 card.'
-      : `Produce resources from every tile numbered ${total}. Settlements collect 1, cities collect 2.`
+      : `Produced resources from every unblocked tile numbered ${total}. Settlements collect 1, cities collect 2.`
   };
 
   return next;
@@ -220,11 +501,19 @@ const gameApiExport = {
   RESOURCE_TYPES,
   PHASES,
   createGame,
+  createBoard,
+  createPlayableGame,
   calculateVictoryPoints,
   totalResources,
   adjustResource,
   adjustCounter,
   upgradeSettlementToCity,
+  getAdjacentVertexIds,
+  buildSettlement,
+  buildRoad,
+  upgradeCityAtVertex,
+  moveRobber,
+  produceResourcesForRoll,
   rollDiceWithValues,
   rollDice,
   endTurn,

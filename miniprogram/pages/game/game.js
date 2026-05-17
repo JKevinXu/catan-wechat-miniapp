@@ -1,11 +1,15 @@
 const {
   RESOURCE_TYPES,
-  createGame,
+  createPlayableGame,
   calculateVictoryPoints,
   totalResources,
   adjustResource,
   adjustCounter,
   upgradeSettlementToCity,
+  buildSettlement,
+  buildRoad,
+  upgradeCityAtVertex,
+  moveRobber,
   rollDice,
   endTurn,
   setLongestRoad,
@@ -22,11 +26,31 @@ function withViewModel(game) {
       .join(', ')
     : '';
 
+  const boardHexes = game.board.hexes.map((hex) => ({
+    ...hex,
+    label: hex.number ? `${hex.resource} ${hex.number}` : hex.resource,
+    robberLabel: hex.hasRobber ? ' ● robber' : ''
+  }));
+
+  const boardVertices = game.board.vertices.map((vertex) => ({
+    ...vertex,
+    label: vertex.building ? `${vertex.building.type} ${vertex.building.playerId}` : 'empty'
+  }));
+
+  const boardEdges = game.board.edges.map((edge) => ({
+    ...edge,
+    label: edge.roadOwnerId ? `road ${edge.roadOwnerId}` : 'empty edge'
+  }));
+
   return {
     game,
     currentPlayer,
     resourceTypes: RESOURCE_TYPES,
     discardCandidateNames,
+    boardHexes,
+    boardVertices,
+    boardEdges,
+    log: game.log || [],
     players: game.players.map((player) => ({
       ...player,
       resourceRows: RESOURCE_TYPES.map((resource) => ({
@@ -43,15 +67,31 @@ function withViewModel(game) {
 }
 
 Page({
-  data: withViewModel(createGame(3)),
+  data: {
+    ...withViewModel(createPlayableGame(3)),
+    mode: 'settlement',
+    freeBuild: true
+  },
 
   onLoad(query) {
     const playerCount = Number(query.players || 3);
-    this.setGame(createGame(playerCount));
+    this.setGame(createPlayableGame(playerCount));
   },
 
   setGame(game) {
     this.setData(withViewModel(game));
+  },
+
+  setMode(event) {
+    this.setData({ mode: event.currentTarget.dataset.mode });
+  },
+
+  toggleFreeBuild() {
+    this.setData({ freeBuild: !this.data.freeBuild });
+  },
+
+  currentBuildOptions() {
+    return { free: this.data.freeBuild, setup: this.data.freeBuild };
   },
 
   roll() {
@@ -64,6 +104,38 @@ Page({
 
   endTurn() {
     this.setGame(endTurn(this.data.game));
+  },
+
+  tapHex(event) {
+    if (this.data.mode !== 'robber') return;
+    try {
+      this.setGame(moveRobber(this.data.game, event.currentTarget.dataset.hexId));
+    } catch (error) {
+      wx.showToast({ title: error.message, icon: 'none' });
+    }
+  },
+
+  tapVertex(event) {
+    const playerId = this.data.currentPlayer.id;
+    const vertexId = event.currentTarget.dataset.vertexId;
+    try {
+      if (this.data.mode === 'settlement') {
+        this.setGame(buildSettlement(this.data.game, playerId, vertexId, this.currentBuildOptions()));
+      } else if (this.data.mode === 'city') {
+        this.setGame(upgradeCityAtVertex(this.data.game, playerId, vertexId, this.currentBuildOptions()));
+      }
+    } catch (error) {
+      wx.showToast({ title: error.message, icon: 'none' });
+    }
+  },
+
+  tapEdge(event) {
+    if (this.data.mode !== 'road') return;
+    try {
+      this.setGame(buildRoad(this.data.game, this.data.currentPlayer.id, event.currentTarget.dataset.edgeId, this.currentBuildOptions()));
+    } catch (error) {
+      wx.showToast({ title: error.message, icon: 'none' });
+    }
   },
 
   adjustResource(event) {

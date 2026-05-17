@@ -10,8 +10,20 @@
   padding: 18rpx;
 }
 
-.roll-total, .player-name, .score {
+.roll-total, .player-name, .score, .section-title {
   font-weight: 700;
+}
+
+.section-title {
+  font-size: 32rpx;
+  margin-bottom: 12rpx;
+}
+
+.section-subtitle {
+  color: #6f4e37;
+  font-size: 26rpx;
+  font-weight: 700;
+  margin: 18rpx 0 10rpx;
 }
 
 .warning {
@@ -27,6 +39,63 @@
   font-weight: 700;
   margin: 18rpx 0;
   padding: 18rpx;
+}
+
+.mode-row, .award-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin: 16rpx 0;
+}
+
+.active-mode {
+  background: #c75b39;
+  color: #fff;
+}
+
+.hex-scroll {
+  white-space: nowrap;
+  width: 100%;
+}
+
+.hex-strip {
+  display: flex;
+  gap: 12rpx;
+  padding: 12rpx 0;
+}
+
+.hex-chip {
+  border: 2rpx solid #3d2b1f;
+  border-radius: 16rpx;
+  color: #3d2b1f;
+  display: inline-block;
+  font-size: 24rpx;
+  min-width: 150rpx;
+  padding: 16rpx;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.resource-brick { background: #c75b39; color: #fff; }
+.resource-lumber { background: #2f7d32; color: #fff; }
+.resource-wool { background: #9ccc65; }
+.resource-grain { background: #f2c94c; }
+.resource-ore { background: #8b8f98; color: #fff; }
+.resource-desert { background: #d7b46a; }
+
+.point-grid {
+  display: grid;
+  gap: 10rpx;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-height: 360rpx;
+  overflow: auto;
+}
+
+.log-line {
+  border-top: 1rpx solid #e7d4b5;
+  color: #6f4e37;
+  line-height: 1.4;
+  padding: 10rpx 0;
 }
 
 .player-header {
@@ -55,29 +124,11 @@
   text-transform: capitalize;
 }
 
-.counter-row, .counter-line, .award-row {
+.counter-row {
   align-items: center;
   display: flex;
   gap: 12rpx;
-}
-
-.counter-row {
   justify-content: space-between;
-}
-
-.counter-line {
-  border-top: 1rpx solid #e7d4b5;
-  justify-content: space-between;
-  padding: 12rpx 0;
-}
-
-.counter-line text {
-  flex: 1;
-}
-
-.award-row {
-  flex-wrap: wrap;
-  margin-top: 14rpx;
 }
 
 .award-button {

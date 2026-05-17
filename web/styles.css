@@ -24,6 +24,10 @@ button:disabled {
   padding: 24px;
 }
 
+.container.wide {
+  max-width: 1440px;
+}
+
 .card {
   background: #fff8e8;
   border: 1px solid #d6b37a;
@@ -44,10 +48,16 @@ button:disabled {
   color: #6f4e37;
 }
 
-.actions {
+.actions,
+.board-toolbar,
+.legend,
+.resource-line {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.actions {
   margin-top: 16px;
 }
 
@@ -66,50 +76,33 @@ button:disabled {
   color: white;
 }
 
-.grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
-.player-header,
-.counter-row {
-  align-items: center;
+.nav-tabs {
   display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.nav-tabs button.active {
+  outline: 3px solid #d6b37a;
+}
+
+.game-status {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
   justify-content: space-between;
-  gap: 8px;
 }
 
-.score {
-  background: #4d7c59;
-  border-radius: 999px;
-  color: white;
-  font-weight: 800;
-  padding: 5px 10px;
+.status-actions {
+  justify-content: flex-end;
+  min-width: 280px;
 }
 
-.resource-grid {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 12px;
-}
-
-.resource-cell,
 .roll-box {
   background: #f2dfb8;
   border-radius: 10px;
+  margin-top: 12px;
   padding: 10px;
-}
-
-.counter-row {
-  border-top: 1px solid #e7d4b5;
-  padding: 9px 0;
-}
-
-.counter-buttons {
-  display: flex;
-  gap: 6px;
 }
 
 .warning {
@@ -126,19 +119,188 @@ button:disabled {
   padding: 12px;
 }
 
-.nav-tabs {
+.play-layout {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(620px, 1fr) 380px;
+}
+
+.board-card {
+  overflow: hidden;
+}
+
+.board-toolbar {
+  align-items: center;
+  border-bottom: 1px solid #e7d4b5;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+}
+
+.free-toggle {
+  align-items: center;
+  color: #6f4e37;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.game-board {
+  background: #d6eef7;
+  border-radius: 18px;
+  display: block;
+  height: min(72vh, 760px);
+  min-height: 540px;
+  width: 100%;
+}
+
+.hex polygon {
+  stroke: #3d2b1f;
+  stroke-width: 2;
+}
+
+.hex:hover polygon {
+  filter: brightness(1.08);
+  stroke-width: 3;
+}
+
+.hex-number {
+  fill: #3d2b1f;
+  font-size: 16px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.hex-resource {
+  fill: #3d2b1f;
+  font-size: 8px;
+  font-weight: 700;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.robber {
+  fill: #111;
+  font-size: 24px;
+  pointer-events: none;
+}
+
+.edge-hit {
+  cursor: pointer;
+  opacity: 0;
+  stroke: #111;
+  stroke-linecap: round;
+  stroke-width: 14;
+}
+
+.edge-hit:hover + .road {
+  stroke: #fff;
+  stroke-width: 8;
+}
+
+.road {
+  pointer-events: none;
+  stroke-linecap: round;
+  stroke-width: 6;
+}
+
+.road.owned {
+  stroke-width: 8;
+  stroke: currentColor;
+}
+
+.vertex-group {
+  cursor: pointer;
+}
+
+.vertex-hit {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.vertex-dot {
+  fill: #fff8e8;
+  stroke: #3d2b1f;
+  stroke-width: 1.5;
+}
+
+.vertex-group:hover .vertex-dot,
+.vertex-group:hover .building {
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.building {
+  stroke: #3d2b1f;
+  stroke-width: 2;
+}
+
+.legend {
+  margin-top: 12px;
+}
+
+.legend span {
+  align-items: center;
+  display: inline-flex;
+  gap: 5px;
+  text-transform: capitalize;
+}
+
+.legend i {
+  border: 1px solid #3d2b1f;
+  border-radius: 4px;
+  display: inline-block;
+  height: 14px;
+  width: 18px;
+}
+
+.player-header {
+  align-items: center;
   display: flex;
-  gap: 10px;
-  margin-bottom: 18px;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.nav-tabs button.active {
-  outline: 3px solid #d6b37a;
+.score {
+  background: #4d7c59;
+  border-radius: 999px;
+  color: white;
+  font-weight: 800;
+  padding: 5px 10px;
 }
 
+.mini-player {
+  border-left: 8px solid #999;
+  border-radius: 10px;
+  margin-top: 12px;
+  padding: 10px 0 10px 12px;
+}
+
+.resource-line {
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.resource-line span {
+  background: #f2dfb8;
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.log-line,
 .rule-item,
 .cost-row {
   border-top: 1px solid #e7d4b5;
   line-height: 1.5;
   padding: 10px 0;
+}
+
+@media (max-width: 1040px) {
+  .play-layout,
+  .game-status {
+    display: block;
+  }
+
+  .game-board {
+    min-height: 460px;
+  }
 }

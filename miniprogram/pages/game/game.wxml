@@ -1,7 +1,7 @@
 <view class="container">
   <view class="card status-card">
     <view class="title">{{currentPlayer.name}}'s turn</view>
-    <view class="subtitle">Phase: {{game.phase}}</view>
+    <view class="subtitle">Phase: {{game.phase}} · Mode: {{mode}}</view>
     <view wx:if="{{game.lastRoll}}" class="roll-box">
       <view class="roll-total">Roll: {{game.lastRoll.dieA}} + {{game.lastRoll.dieB}} = {{game.lastRoll.total}}</view>
       <view>{{game.lastRoll.message}}</view>
@@ -13,12 +13,47 @@
     <button bindtap="openRules">Rules</button>
   </view>
 
+  <view class="card board-card">
+    <view class="section-title">Playable Board</view>
+    <view class="subtitle">Choose an action, then tap a tile / point / edge below. Browser preview has the full SVG board; Mini Program shows a compact tap list.</view>
+    <view class="mode-row">
+      <button size="mini" class="{{mode === 'settlement' ? 'active-mode' : ''}}" data-mode="settlement" bindtap="setMode">Settlement</button>
+      <button size="mini" class="{{mode === 'road' ? 'active-mode' : ''}}" data-mode="road" bindtap="setMode">Road</button>
+      <button size="mini" class="{{mode === 'city' ? 'active-mode' : ''}}" data-mode="city" bindtap="setMode">City</button>
+      <button size="mini" class="{{mode === 'robber' ? 'active-mode' : ''}}" data-mode="robber" bindtap="setMode">Robber</button>
+      <button size="mini" bindtap="toggleFreeBuild">{{freeBuild ? 'Free setup: on' : 'Free setup: off'}}</button>
+    </view>
+
+    <scroll-view scroll-x class="hex-scroll">
+      <view class="hex-strip">
+        <view wx:for="{{boardHexes}}" wx:key="id" class="hex-chip resource-{{item.resource}}" data-hex-id="{{item.id}}" bindtap="tapHex">
+          {{item.label}}{{item.robberLabel}}
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="section-subtitle">Build points</view>
+    <view class="point-grid">
+      <button wx:for="{{boardVertices}}" wx:key="id" size="mini" data-vertex-id="{{item.id}}" bindtap="tapVertex">{{item.id}} {{item.label}}</button>
+    </view>
+
+    <view class="section-subtitle">Road edges</view>
+    <view class="point-grid">
+      <button wx:for="{{boardEdges}}" wx:key="id" size="mini" data-edge-id="{{item.id}}" bindtap="tapEdge">{{item.id}} {{item.label}}</button>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">Game Log</view>
+    <view wx:for="{{log}}" wx:key="*this" class="log-line">{{item}}</view>
+  </view>
+
   <view wx:for="{{players}}" wx:key="id" class="card player-card">
     <view class="player-header">
       <view class="player-name">{{item.name}}</view>
       <view class="score">{{item.score}} VP</view>
     </view>
-    <view class="muted">Resources: {{item.resourceTotal}}</view>
+    <view class="muted">Roads {{item.roads}} · Settlements {{item.settlements}} · Cities {{item.cities}} · Resources {{item.resourceTotal}}</view>
 
     <view class="resource-grid">
       <view wx:for="{{item.resourceRows}}" wx:for-item="resource" wx:key="name" class="resource-cell">
@@ -28,39 +63,6 @@
           <text>{{resource.count}}</text>
           <button size="mini" data-player-id="{{item.id}}" data-resource="{{resource.name}}" data-delta="1" bindtap="adjustResource">+</button>
         </view>
-      </view>
-    </view>
-
-    <view class="counter-section">
-      <view class="counter-line">
-        <text>Roads: {{item.roads}}</text>
-        <button size="mini" data-player-id="{{item.id}}" data-field="roads" data-delta="-1" bindtap="adjustCounter">-</button>
-        <button size="mini" data-player-id="{{item.id}}" data-field="roads" data-delta="1" bindtap="adjustCounter">+</button>
-      </view>
-      <view class="counter-line">
-        <text>Settlements: {{item.settlements}}</text>
-        <button size="mini" data-player-id="{{item.id}}" data-field="settlements" data-delta="-1" bindtap="adjustCounter">-</button>
-        <button size="mini" data-player-id="{{item.id}}" data-field="settlements" data-delta="1" bindtap="adjustCounter">+</button>
-      </view>
-      <view class="counter-line">
-        <text>Cities: {{item.cities}}</text>
-        <button size="mini" data-player-id="{{item.id}}" data-field="cities" data-delta="-1" bindtap="adjustCounter">-</button>
-        <button size="mini" data-player-id="{{item.id}}" bindtap="upgradeCity">Upgrade</button>
-      </view>
-      <view class="counter-line">
-        <text>Dev cards: {{item.developmentCards}}</text>
-        <button size="mini" data-player-id="{{item.id}}" data-field="developmentCards" data-delta="-1" bindtap="adjustCounter">-</button>
-        <button size="mini" data-player-id="{{item.id}}" data-field="developmentCards" data-delta="1" bindtap="adjustCounter">+</button>
-      </view>
-      <view class="counter-line">
-        <text>VP cards: {{item.victoryPointCards}}</text>
-        <button size="mini" data-player-id="{{item.id}}" data-field="victoryPointCards" data-delta="-1" bindtap="adjustCounter">-</button>
-        <button size="mini" data-player-id="{{item.id}}" data-field="victoryPointCards" data-delta="1" bindtap="adjustCounter">+</button>
-      </view>
-      <view class="counter-line">
-        <text>Knights: {{item.knightsPlayed}}</text>
-        <button size="mini" data-player-id="{{item.id}}" data-field="knightsPlayed" data-delta="-1" bindtap="adjustCounter">-</button>
-        <button size="mini" data-player-id="{{item.id}}" data-field="knightsPlayed" data-delta="1" bindtap="adjustCounter">+</button>
       </view>
     </view>
 
